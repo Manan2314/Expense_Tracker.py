@@ -33,7 +33,7 @@ if not os.path.exists("budget.csv"):
 # ------------------ Functions ------------------ #
 
 def register_or_login():
-    st.header("Welcome to ExpenseTracker 💸")
+    st.header("Welcome to ExpenseTracker \U0001F4B8")
     user_type = st.radio("Are you a new or existing user?", ("New User", "Existing User"))
 
     if user_type == "New User":
@@ -80,7 +80,7 @@ def view_expenses(email):
 
     with open("expenses.csv", "r") as file:
         reader = csv.reader(file)
-        next(reader)  # skip header
+        next(reader)
         for row in reader:
             if row[1] == email:
                 table_data.append([row[0], row[3], row[2]])
@@ -111,7 +111,6 @@ def set_budget(email):
 def overspending_alerts(email):
     st.subheader("📊 Budget Tracker")
     try:
-        # get latest budget for user
         with open("budget.csv", "r") as file:
             reader = csv.reader(file)
             rows = [row for row in reader if row[0] == email]
@@ -121,7 +120,6 @@ def overspending_alerts(email):
             latest = rows[-1]
             income, goal, limit = int(latest[1]), int(latest[2]), int(latest[3])
 
-        # calculate spending this month
         total_spent = 0
         now = datetime.now()
         with open("expenses.csv", "r") as file:
@@ -179,9 +177,22 @@ def summary_pie_chart(email):
 
 def main():
     st.set_page_config(page_title="Expense Tracker", layout="centered")
-    name, email = register_or_login()
-    if not email:
-        st.stop()
+
+    if "logged_in" not in st.session_state:
+        st.session_state.logged_in = False
+
+    if not st.session_state.logged_in:
+        name, email = register_or_login()
+        if email:
+            st.session_state.logged_in = True
+            st.session_state.name = name
+            st.session_state.email = email
+            st.experimental_rerun()
+        else:
+            st.stop()
+    else:
+        name = st.session_state.name
+        email = st.session_state.email
 
     st.sidebar.title("📌 Navigation")
     option = st.sidebar.radio("Choose an action:", (
