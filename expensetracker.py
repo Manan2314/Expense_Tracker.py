@@ -187,7 +187,7 @@ def main():
             st.session_state.logged_in = True
             st.session_state.name = name
             st.session_state.email = email
-            st.experimental_rerun()
+            st.rerun()
         else:
             st.stop()
     else:
